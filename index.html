@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DNS Speedtest</title>
+</head>
+<body>
+  <h1>DNS Speedtest</h1>
+  <div id="ip-info">Loading IP info...</div>
+  <button onclick="testDNS()">Test DNS Speed</button>
+  <div id="dns-results"></div>
+  <script src="https://cdn.jsdelivr.net/npm/dns-query@2.0.2/dist/dns-query.min.js"></script>
+  <script>
+    // IP & Country (same as before)
+    function countryCodeToFlagEmoji(countryCode) {
+      return countryCode
+        .toUpperCase()
+        .replace(/./g, char =>
+          String.fromCodePoint(127397 + char.charCodeAt())
+        );
+    }
+    async function getIPInfo() {
+      const response = await fetch('http://ip-api.com/json/');
+      if (response.ok) {
+        const data = await response.json();
+        const flag = countryCodeToFlagEmoji(data.countryCode);
+        document.getElementById('ip-info').innerHTML = `
+          <strong>IP:</strong> ${data.query}<br>
+          <strong>Country:</strong> ${flag} ${data.country}<br>
+          <strong>ISP:</strong> ${data.isp}
+        `;
+      } else {
+        document.getElementById('ip-info').innerText = 'Could not fetch IP info.';
+      }
+    }
+    getIPInfo();
+    // Famous DNS servers
+    const dnsServers = [
+      { name: "Google", doh: "https://dns.google/dns-query" },
+      { name: "Cloudflare", doh: "https://cloudflare-dns.com/dns-query" },
+      { name: "Quad9", doh: "https://dns.quad9.net/dns-query" },
+      { name: "AdGuard", doh: "https://dns.adguard.com/dns-query" }
+    ];
+
+    async function testDNS() {
+      const domain = "github.com"; // Test domain
+      document.getElementById('dns-results').innerHTML = "Testing...";
+      let results = [];
+      for (const dns of dnsServers) {
+        const start = performance.now();
+        try {
+          await window.dnsQuery.resolve(domain, 'A', { doh: dns.doh });
+          const latency = Math.round(performance.now() - start);
+          results.push({ name: dns.name, latency });
+        } catch (e) {
+          results.push({ name: dns.name, latency: "Failed" });
+        }
+      }
+      // Sort results by latency
+      results.sort((a, b) => (a.latency === "Failed" ? Infinity : a.latency) - (b.latency === "Failed" ? Infinity : b.latency));
+      document.getElementById('dns-results').innerHTML =
+        `<h3>Results:</h3>` +
+        `<ul>` +
+        results.map(r => `<li><strong>${r.name}:</strong> ${r.latency} ms</li>`).join('') +
+        `</ul>`;
+    }
+  </script>
+</body>
+</html>
