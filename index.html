@@ -2,16 +2,214 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>DNS Speedtest</title>
+  <title>DNS Speedtest Tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #161616;
+      color: #FAF3E3;
+      font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .box {
+      max-width: 620px;
+      margin: 2em auto;
+      background: #23201B;
+      padding: 2em;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.34);
+    }
+    h1 {
+      color: #C7A46C;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-align: center;
+      margin-top: 0;
+    }
+    #ip-info {
+      margin-bottom: 1em;
+      font-size: 1.1em;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #C7A46C44;
+      margin: 1.5em 0;
+    }
+    #dns-results h3 {
+      color: #C7A46C;
+      margin-bottom: 0.7em;
+    }
+    #dns-results ul {
+      padding: 0;
+      margin: 0;
+    }
+    #dns-results li {
+      list-style: none;
+      padding: 0.5em 0;
+      margin-bottom: 0.15em;
+      border-bottom: 1px solid #23201B;
+      font-size: 1em;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7em;
+      justify-content: space-between;
+      position: relative;
+      flex-wrap: wrap;
+    }
+    .failed {
+      color: #d9534f;
+      font-weight: 600;
+    }
+    .checkmark {
+      color: #3CB371;
+      font-size: 1.2em;
+      margin-right: 0.2em;
+      display: flex;
+      align-items: center;
+    }
+    .crossmark {
+      color: #d9534f;
+      font-size: 1.2em;
+      margin-right: 0.2em;
+      display: flex;
+      align-items: center;
+    }
+    .spinner {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      vertical-align: middle;
+      margin-right: 0.2em;
+    }
+    .spinner svg {
+      animation: spin 1.3s linear infinite;
+      display: block;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+    .progress-bar-container {
+      margin: 1.4em 0 1em 0;
+      width: 100%;
+      background: #1E1B17;
+      border-radius: 8px;
+      height: 22px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+      overflow: hidden;
+      border: 1px solid #C7A46C44;
+    }
+    .progress-bar {
+      background: linear-gradient(90deg, #C7A46C 60%, #a88c5c);
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s cubic-bezier(.4,2,.3,1);
+    }
+    button, .collapse-btn {
+      padding: 0.7em 1.2em;
+      border: none;
+      border-radius: 6px;
+      background: #C7A46C;
+      color: #23201B;
+      font-weight: 600;
+      font-size: 0.96em;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px #0003;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 0.4em;
+    }
+    button:disabled {
+      background: #b9a079;
+      color: #888;
+      cursor: not-allowed;
+    }
+    .collapse-btn {
+      background: #C7A46C33;
+      color: #C7A46C;
+      border: 1px solid #C7A46C99;
+      font-size: 0.92em;
+      padding: 0.35em 0.9em;
+      margin-left: 0.5em;
+      margin-bottom: 0;
+      box-shadow: none;
+      min-width: 80px;
+    }
+    .collapse-btn:hover {
+      background: #C7A46C99;
+      color: #23201B;
+    }
+    .dns-details {
+      background: #1E1B17;
+      border-radius: 7px;
+      padding: 0.7em 1em;
+      margin-top: 0.5em;
+      margin-left: 2.5em;
+      box-shadow: 0 1px 4px #0002;
+      font-size: 0.97em;
+      width: 100%;
+      max-width: 480px;
+      color: #FFDFA9;
+      border: 1px solid #C7A46C44;
+      display: none;
+      animation: fadeIn .3s;
+    }
+    .dns-details.active {
+      display: block;
+    }
+    .result-label {
+      min-width: 55px;
+      display: inline-block;
+      font-weight: 500;
+      color: #C7A46C;
+      text-align: right;
+      margin-right: 0.3em;
+      font-size: 0.95em;
+    }
+    .results-main {
+      display: flex;
+      align-items: center;
+      gap: 0.8em;
+      flex-wrap: wrap;
+    }
+    .dns-details-list {
+      margin: 0.5em 0 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .dns-details-list li {
+      margin-bottom: 0.3em;
+    }
+    .dns-details a {
+      color: #C7A46C;
+      text-decoration: underline;
+    }
+    @media (max-width: 600px) {
+      .box { padding: 1em; }
+      button, .collapse-btn { font-size: 0.95em; }
+      .dns-details { max-width: 94vw; }
+    }
+    .fade-in {
+      animation: fadeIn .3s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
 </head>
 <body>
-  <h1>DNS Speedtest</h1>
-  <div id="ip-info">Loading IP info...</div>
-  <button onclick="testDNS()">Test DNS Speed</button>
-  <div id="dns-results"></div>
-  <script src="https://cdn.jsdelivr.net/npm/dns-query@2.0.2/dist/dns-query.min.js"></script>
+  <div class="box">
+    <h1>DNS Speedtest Tool</h1>
+    <div id="ip-info">Loading IP info...</div>
+    <hr>
+    <button id="dns-btn" onclick="testDNS()">Test DNS Speed</button>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div id="dns-results"></div>
+  </div>
   <script>
-    // IP & Country (same as before)
     function countryCodeToFlagEmoji(countryCode) {
       return countryCode
         .toUpperCase()
@@ -34,36 +232,302 @@
       }
     }
     getIPInfo();
-    // Famous DNS servers
+
+    // Extended global and Iranian DNS providers
     const dnsServers = [
-      { name: "Google", doh: "https://dns.google/dns-query" },
-      { name: "Cloudflare", doh: "https://cloudflare-dns.com/dns-query" },
-      { name: "Quad9", doh: "https://dns.quad9.net/dns-query" },
-      { name: "AdGuard", doh: "https://dns.adguard.com/dns-query" }
+      {
+        name: "Cloudflare",
+        doh: "https://cloudflare-dns.com/dns-query",
+        ipv4: ["1.1.1.1", "1.0.0.1"],
+        ipv6: ["2606:4700:4700::1111", "2606:4700:4700::1001"],
+        site: "https://1.1.1.1/",
+        info: "Privacy-focused, supports DNS-over-HTTPS and DNS-over-TLS."
+      },
+      {
+        name: "Google",
+        doh: "https://dns.google/resolve",
+        ipv4: ["8.8.8.8", "8.8.4.4"],
+        ipv6: ["2001:4860:4860::8888", "2001:4860:4860::8844"],
+        site: "https://developers.google.com/speed/public-dns",
+        info: "Google Public DNS, fast and reliable."
+      },
+      {
+        name: "Quad9",
+        doh: "https://dns.quad9.net/dns-query",
+        ipv4: ["9.9.9.9", "149.112.112.112"],
+        ipv6: ["2620:fe::fe", "2620:fe::9"],
+        site: "https://www.quad9.net/",
+        info: "Blocks malicious domains, privacy prioritized."
+      },
+      {
+        name: "AdGuard",
+        doh: "https://dns.adguard.com/dns-query",
+        ipv4: ["94.140.14.14", "94.140.15.15"],
+        ipv6: ["2a10:50c0::ad1:ff", "2a10:50c0::ad2:ff"],
+        site: "https://adguard.com/en/adguard-dns/overview.html",
+        info: "Filters ads, trackers, and adult content."
+      },
+      {
+        name: "OpenDNS",
+        doh: "https://doh.opendns.com/dns-query",
+        ipv4: ["208.67.222.222", "208.67.220.220"],
+        ipv6: [],
+        site: "https://www.opendns.com/",
+        info: "Cisco OpenDNS, offers parental controls."
+      },
+      {
+        name: "CleanBrowsing",
+        doh: "https://doh.cleanbrowsing.org/dns-query",
+        ipv4: ["185.228.168.9", "185.228.169.9"],
+        ipv6: [],
+        site: "https://cleanbrowsing.org/",
+        info: "Family-safe DNS, blocks adult content."
+      },
+      {
+        name: "NextDNS",
+        doh: "https://dns.nextdns.io/",
+        ipv4: ["Custom per user"],
+        ipv6: ["Custom per user"],
+        site: "https://nextdns.io/",
+        info: "Customizable DNS filtering and analytics."
+      },
+      {
+        name: "Yandex",
+        doh: "https://doh.yandex.net/dns-query",
+        ipv4: ["77.88.8.8", "77.88.8.1"],
+        ipv6: [],
+        site: "https://dns.yandex.com/",
+        info: "Yandex DNS, Russian provider."
+      },
+      {
+        name: "Comodo Secure",
+        doh: "https://doh.comodo.com/dns-query",
+        ipv4: ["8.26.56.26", "8.20.247.20"],
+        ipv6: [],
+        site: "https://www.comodo.com/secure-dns/",
+        info: "Comodo Secure DNS."
+      },
+      {
+        name: "DNS.SB",
+        doh: "https://doh.dns.sb/dns-query",
+        ipv4: ["185.222.222.222", "185.184.222.222"],
+        ipv6: [],
+        site: "https://dns.sb/",
+        info: "DNS.SB, privacy focused, based in Seychelles."
+      },
+      // Iranian DNS Providers
+      {
+        name: "Sehcan",
+        doh: "https://dns.sehcan.ir/dns-query",
+        ipv4: ["185.51.200.2", "178.22.122.100"],
+        ipv6: [],
+        site: "https://sehcan.ir/",
+        info: "Sehcan Iranian DNS, privacy and filtering."
+      },
+      {
+        name: "Electro",
+        doh: "https://dns.electro.ir/dns-query",
+        ipv4: ["51.254.45.140", "188.121.113.14"],
+        ipv6: [],
+        site: "https://electro.ir/services/dns",
+        info: "Electro DNS, Iranian provider."
+      },
+      {
+        name: "Shatel",
+        doh: "https://doh.shatel.ir/dns-query",
+        ipv4: ["94.182.110.200", "94.182.110.210"],
+        ipv6: [],
+        site: "https://shatel.ir/",
+        info: "Shatel, major ISP in Iran."
+      },
+      {
+        name: "AsiaTech",
+        doh: "https://dns2.asiatech.ir/dns-query",
+        ipv4: ["194.225.105.105", "194.225.105.106"],
+        ipv6: [],
+        site: "https://asiatech.ir/",
+        info: "AsiaTech, major Iranian ISP."
+      },
+      {
+        name: "ParsOnline",
+        doh: "https://doh.parsonline.net/dns-query",
+        ipv4: ["213.217.45.180", "213.217.45.181"],
+        ipv6: [],
+        site: "https://parsonline.com/",
+        info: "ParsOnline, Iranian provider."
+      },
+      {
+        name: "Irancell",
+        doh: "https://doh.irancell.ir/dns-query",
+        ipv4: ["62.193.13.1", "62.193.13.2"],
+        ipv6: [],
+        site: "https://irancell.ir/",
+        info: "Irancell, mobile operator in Iran."
+      },
+      {
+        name: "Tci",
+        doh: "https://doh.tci.ir/dns-query",
+        ipv4: ["194.225.26.7", "194.225.26.8"],
+        ipv6: [],
+        site: "https://tci.ir/",
+        info: "Tci, Telecommunication Company of Iran."
+      }
     ];
 
-    async function testDNS() {
-      const domain = "github.com"; // Test domain
-      document.getElementById('dns-results').innerHTML = "Testing...";
-      let results = [];
-      for (const dns of dnsServers) {
-        const start = performance.now();
-        try {
-          await window.dnsQuery.resolve(domain, 'A', { doh: dns.doh });
-          const latency = Math.round(performance.now() - start);
-          results.push({ name: dns.name, latency });
-        } catch (e) {
-          results.push({ name: dns.name, latency: "Failed" });
-        }
-      }
-      // Sort results by latency
-      results.sort((a, b) => (a.latency === "Failed" ? Infinity : a.latency) - (b.latency === "Failed" ? Infinity : b.latency));
-      document.getElementById('dns-results').innerHTML =
-        `<h3>Results:</h3>` +
-        `<ul>` +
-        results.map(r => `<li><strong>${r.name}:</strong> ${r.latency} ms</li>`).join('') +
-        `</ul>`;
+    function fetchWithTimeout(url, options, timeout = 3500) {
+      return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+      ]);
     }
+
+    function getSpinner() {
+      return `
+      <span class="spinner">
+        <svg viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#C7A46C" stroke-width="4" stroke-linecap="round" opacity="0.2"/>
+          <circle cx="25" cy="25" r="20" fill="none" stroke="#C7A46C" stroke-width="4" stroke-linecap="round" stroke-dasharray="31.4 100" />
+        </svg>
+      </span>
+      `;
+    }
+    function getCheckMark() {
+      return `<span class="checkmark">&#x2714;</span>`;
+    }
+    function getCrossMark() {
+      return `<span class="crossmark">&#10060;</span>`;
+    }
+
+    function updateProgressBar(current, total) {
+      const percent = Math.round((current / total) * 100);
+      document.getElementById('progress-bar').style.width = percent + "%";
+    }
+
+    function buildServerDetails(server) {
+      return `
+        <ul class="dns-details-list">
+          <li><span class="result-label">Provider:</span> ${server.name}</li>
+          <li><span class="result-label">DoH:</span> <span style="word-break:break-all">${server.doh}</span></li>
+          <li><span class="result-label">IPv4:</span> ${server.ipv4.length ? server.ipv4.map(ip=>`<code>${ip}</code>`).join(', ') : '<span style="color:#d9534f">Not available</span>'}</li>
+          <li><span class="result-label">IPv6:</span> ${server.ipv6.length ? server.ipv6.map(ip=>`<code>${ip}</code>`).join(', ') : '<span style="color:#d9534f">Not available</span>'}</li>
+          <li><span class="result-label">Site:</span> <a href="${server.site}" target="_blank">${server.site}</a></li>
+          <li style="margin-top:0.7em;"><b>Info:</b> ${server.info}</li>
+        </ul>
+      `;
+    }
+
+    // Test one DNS server (A record)
+    async function testOneServer(server, domain = "github.com") {
+      let start = performance.now();
+      let url, options;
+      if (server.name === "Google") {
+        url = `${server.doh}?name=${domain}&type=A`;
+        options = { headers: { "accept": "application/dns-json" } };
+      } else if (server.doh.endsWith("/")) {
+        url = `${server.doh}dns-query?name=${domain}&type=A`;
+        options = { headers: { "accept": "application/dns-json" } };
+      } else {
+        url = `${server.doh}?name=${domain}&type=A`;
+        options = { headers: { "accept": "application/dns-json" } };
+      }
+      try {
+        const res = await fetchWithTimeout(url, options, 3500);
+        const data = await res.json();
+        let latency = Math.round(performance.now() - start);
+        if ((data.Answer && data.Answer.length) || (data.answers && data.answers.length)) {
+          return { name: server.name, latency: latency, status: "success" };
+        } else {
+          return { name: server.name, latency: "Failed", status: "failed" };
+        }
+      } catch (e) {
+        return { name: server.name, latency: "Failed", status: "failed" };
+      }
+    }
+
+    async function testDNS() {
+      document.getElementById('dns-btn').disabled = true;
+      document.getElementById('progress-bar').style.width = "0%";
+
+      let results = dnsServers.map((server, i) => ({
+        ...server,
+        latency: null,
+        status: "testing",
+        origIndex: i,
+        expanded: false
+      }));
+
+      renderDNSResults(results);
+
+      for (let i = 0; i < dnsServers.length; i++) {
+        let server = dnsServers[i];
+        let result = await testOneServer(server);
+        let idx = results.findIndex(r => r.name === server.name);
+        results[idx].latency = result.latency;
+        results[idx].status = result.status;
+        // Sort by ping, failed last, keep stable sort for failed
+        results.sort((a, b) => {
+          if (a.status === "failed" && b.status === "failed") {
+            return a.origIndex - b.origIndex;
+          }
+          if (a.status === "failed") return 1;
+          if (b.status === "failed") return -1;
+          return a.latency - b.latency;
+        });
+        renderDNSResults(results);
+        updateProgressBar(i + 1, dnsServers.length);
+      }
+      document.getElementById('dns-btn').disabled = false;
+      updateProgressBar(dnsServers.length, dnsServers.length);
+    }
+
+    function renderDNSResults(results) {
+      let html = `<h3>Results:</h3><ul id="dns-list">`;
+      results.forEach((server, i) => {
+        let icon;
+        if (server.status === "testing") icon = getSpinner();
+        else if (server.status === "success") icon = getCheckMark();
+        else icon = getCrossMark();
+        let latencyDisplay = server.status === "failed"
+          ? `<span class="failed">Failed</span>`
+          : `${server.latency} ms`;
+        html += `<li>
+          <span class="results-main">${icon}<strong>${server.name}:</strong> <span>${latencyDisplay}</span></span>
+          <button class="collapse-btn" onclick="toggleDetails(${i})" id="collapse-btn-${i}">${server.expanded ? "Hide" : "Show"} Info</button>
+          <div class="dns-details${server.expanded ? " active fade-in" : ""}" id="details-${i}">${buildServerDetails(server)}</div>
+        </li>`;
+      });
+      html += `</ul>`;
+      document.getElementById('dns-results').innerHTML = html;
+    }
+
+    // Collapsible details handler
+    window.toggleDetails = function(idx) {
+      // Find the current results in DOM
+      const dnsList = document.querySelectorAll('#dns-list > li');
+      dnsServers.forEach((server, i) => {
+        if (i == idx) {
+          dnsServers[i].expanded = !dnsServers[i].expanded;
+        }
+      });
+      // Keep sort order stable by re-rendering with the latest expanded state
+      let results = dnsServers.map((server, i) => ({
+        ...server,
+        latency: server.latency,
+        status: server.status || "testing",
+        origIndex: i,
+        expanded: server.expanded || false
+      }));
+      // Sort by ping, failed last, keep stable sort for failed
+      results.sort((a, b) => {
+        if (a.status === "failed" && b.status === "failed") {
+          return a.origIndex - b.origIndex;
+        }
+        if (a.status === "failed") return 1;
+        if (b.status === "failed") return -1;
+        return (a.latency || 999999) - (b.latency || 999999);
+      });
+      renderDNSResults(results);
+    };
   </script>
 </body>
 </html>
